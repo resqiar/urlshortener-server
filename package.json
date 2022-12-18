@@ -1,0 +1,26 @@
+{
+  "name": "url-shortener-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@fastify/jwt": "^6.5.0",
+    "@fastify/postgres": "^5.2.0",
+    "dotenv": "^16.0.3",
+    "fastify": "4.10.2",
+    "fastify-bcrypt": "^1.0.1",
+    "joi": "^17.7.0",
+    "pg": "^8.8.0"
+  },
+  "scripts": {
+    "dev": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./dist/server.js\"",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js"
+  },
+  "devDependencies": {
+    "@types/node": "18.11.15",
+    "@types/pg": "^8.6.5",
+    "tsc-watch": "6.0.0",
+    "typescript": "4.9.4"
+  }
+}
