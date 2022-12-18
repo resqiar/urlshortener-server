@@ -6,8 +6,13 @@ import fastify, { FastifyInstance } from "fastify";
 import fastifyBcrypt from "fastify-bcrypt";
 import UserRoutes from "./routes/users.route";
 import URLRoutes from "./routes/urls.route";
+import cors from "@fastify/cors";
 
 const server: FastifyInstance = fastify();
+
+server.register(cors, {
+  origin: ["http://localhost:5173"],
+});
 
 server.get("/ping", async () => {
   return "Please stop pinging me!";

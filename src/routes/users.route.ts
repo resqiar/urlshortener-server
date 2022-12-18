@@ -37,7 +37,12 @@ export default function UserRoutes(
 
       // If the login was not successful, return a 400 status code
       if (!loginResult) {
-        res.status(400).send({ message: "Wrong username or password" });
+        res
+          .status(400)
+          .send({
+            error: "wrong credentials",
+            message: "Wrong username or password",
+          });
         return;
       }
 
