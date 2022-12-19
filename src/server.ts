@@ -11,7 +11,7 @@ import cors from "@fastify/cors";
 const server: FastifyInstance = fastify();
 
 server.register(cors, {
-  origin: ["http://localhost:5173"],
+  origin: [process.env.CLIENT_ORIGIN ?? ""],
 });
 
 server.get("/ping", async () => {
