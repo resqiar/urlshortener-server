@@ -40,20 +40,23 @@ server.register(require("./plugins/jwt.plugin"));
 server.register(UserRoutes, { prefix: "/v1/user" });
 server.register(URLRoutes, { prefix: "/v1/url" });
 
-server.listen({ port: 3333 }, async (err, address) => {
-  if (err) {
-    console.error(err);
-    process.exit(1);
-  }
+server.listen(
+  { port: Number(process.env.PORT) || 3333 },
+  async (err, address) => {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
 
-  console.log(`Server listening at ${address}`);
+    console.log(`Server listening at ${address}`);
 
-  try {
-    // Connnect to Database
-    await server.pg.connect();
-    console.log("Connected to Postgres");
-  } catch (error) {
-    console.error(error);
-    process.exit(1);
+    try {
+      // Connnect to Database
+      await server.pg.connect();
+      console.log("Connected to Postgres");
+    } catch (error) {
+      console.error(error);
+      process.exit(1);
+    }
   }
-});
+);

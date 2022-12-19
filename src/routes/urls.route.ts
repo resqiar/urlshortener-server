@@ -36,6 +36,8 @@ export default function URLRoutes(
           status: 404,
         });
 
+      await urlService.visit(result[0].id);
+
       res.send(result);
     }
   );
@@ -46,6 +48,24 @@ export default function URLRoutes(
     async function (req: FastifyRequest, res: FastifyReply) {
       const currentUser = req.user as { id: string };
       const result = await urlService.create(req.body, currentUser.id);
+      res.send(result);
+    }
+  );
+
+  server.get(
+    "/inventory",
+    { preValidation: [server.authenticate] },
+    async function (req: FastifyRequest, res: FastifyReply) {
+      const currentUser = req.user as { id: string };
+
+      const result = await urlService.findByUser(currentUser.id);
+
+      if (!result)
+        res.send({
+          error: "Error",
+          message: "Something went wrong in the server",
+        });
+
       res.send(result);
     }
   );

@@ -5,9 +5,10 @@ export default class URLService {
 
   async create(body: any, userId: string): Promise<{} | void> {
     const isDuplicate = await this.findByShort(body.shortUrl);
-    if (isDuplicate.length)
+    if (isDuplicate)
       return {
-        error: "Short URL already exist, make a unique one!",
+        error: "duplicate",
+        message: "Custom name already exist, make a unique one!",
       };
 
     const expireAt = this.calculateExpire(body.expireDay);
@@ -26,7 +27,7 @@ export default class URLService {
 
     try {
       const query = await this.server.pg.query(CREATE_SQL);
-      console.log(query.rows);
+      return query.rows[0];
     } catch (error) {
       console.log(error);
     }
@@ -34,7 +35,9 @@ export default class URLService {
 
   async findByShort(short: string): Promise<any> {
     const FIND_SQL = `
-        SELECT * FROM urls WHERE short_url = '${short}';
+        SELECT * FROM urls 
+        WHERE short_url = '${short}'
+        AND expire_at > now();
     `;
 
     try {
@@ -43,6 +46,46 @@ export default class URLService {
       if (query.rows.length === 0) return;
 
       return query.rows;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async findByUser(userId: string): Promise<any> {
+    const FIND_SQL = `
+        SELECT urls.*, users.username, users.avatar_url
+        FROM urls JOIN users
+        ON urls.author_id = users.id
+        WHERE urls.author_id = '${userId}'
+        AND urls.expire_at > now()
+        ORDER BY urls.created_at ASC;
+    `;
+
+    try {
+      const query = await this.server.pg.query(FIND_SQL);
+
+      if (query.rows.length === 0) return;
+
+      return query.rows;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async visit(urlId: string): Promise<any> {
+    const FIND_SQL = `
+        SELECT id FROM urls WHERE id = '${urlId}';
+    `;
+    const INCREMENT_SQL = `
+        UPDATE urls SET visits = visits + 1 WHERE id = '${urlId}';
+    `;
+
+    try {
+      const findQuery = await this.server.pg.query(FIND_SQL);
+
+      if (findQuery.rows.length === 0) return;
+
+      await this.server.pg.query(INCREMENT_SQL);
     } catch (error) {
       console.log(error);
     }
