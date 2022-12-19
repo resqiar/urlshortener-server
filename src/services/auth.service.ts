@@ -15,7 +15,11 @@ export default class AuthService {
 
       if (query.rows.length === 0) return;
 
-      // Compare password and hashed password
+      /**
+       * Compare a plaintext password (body.password) with
+       * a hashed password inside the database (query.rows[0].password).
+       * If matched it will return true, otherwise false.
+       **/
       const isMatch = await this.server.bcrypt.compare(
         body.password,
         query.rows[0].password
@@ -24,7 +28,7 @@ export default class AuthService {
       if (!isMatch) return;
 
       // generate a JWT token
-      const token = this.server.jwt.sign({
+      const token = this.generateToken({
         id: query.rows[0].id,
       });
 
@@ -37,7 +41,11 @@ export default class AuthService {
   async register(body: any): Promise<string | void> {
     if (!body.username || !body.email || !body.password) return;
 
-    // Hashed password
+    /**
+     * Hash the plain password provided by user using "bcrypt" package.
+     * This step is really important to ensure the password is safe before
+     * saving into the database.
+     **/
     const hashedPassword = await this.server.bcrypt.hash(body.password);
 
     const CREATE_SQL = `
@@ -50,7 +58,7 @@ export default class AuthService {
       const query = await this.server.pg.query(CREATE_SQL);
 
       // generate a JWT token
-      const token = this.server.jwt.sign({
+      const token = this.generateToken({
         id: query.rows[0].id,
       });
 
@@ -58,5 +66,14 @@ export default class AuthService {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  private generateToken(payload: any) {
+    /**
+     * Create a JSON Web Token and sign alongside the id
+     * of the user. The sign method returns a signed JWT
+     * in the form of a string.
+     **/
+    return this.server.jwt.sign(payload);
   }
 }

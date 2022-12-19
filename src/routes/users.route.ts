@@ -13,10 +13,19 @@ export default function UserRoutes(
   _: FastifyServerOptions,
   done: () => void
 ) {
+  /**
+   * This line of code creates a new instance of the AuthService.
+   * AuthService class is responsible for handling authentication-related tasks
+   * across all the server instances;
+   **/
   const authService = new AuthService(server);
 
+  /**
+   * Route that used only for testing purpose only.
+   * Use this route to test and query all the id of users.
+   **/
   server.get("/", async function () {
-    const result = await server.pg.query("SELECT * FROM users");
+    const result = await server.pg.query("SELECT id FROM users");
     return result.rows;
   });
 
@@ -33,6 +42,7 @@ export default function UserRoutes(
     "/login",
     LoginUserValidate,
     async function (req: FastifyRequest, res: FastifyReply) {
+      // Match the user credentials and store the result
       const loginResult = await authService.login(req.body);
 
       // If the login was not successful, return a 400 status code

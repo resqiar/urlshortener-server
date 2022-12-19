@@ -4,6 +4,11 @@ export default class URLService {
   constructor(private server: FastifyInstance) {}
 
   async create(body: any, userId: string): Promise<{} | void> {
+    /**
+     * Check if the short URL is already exist inside the database.
+     * If a duplicate is found, return an error message indicating
+     * that the the short URL name needs to be unique.
+     **/
     const isDuplicate = await this.findByShort(body.shortUrl);
     if (isDuplicate)
       return {
@@ -11,7 +16,8 @@ export default class URLService {
         message: "Custom name already exist, make a unique one!",
       };
 
-    const expireAt = this.calculateExpire(body.expireDay);
+    // Calculate Expiration Day to Date
+    const expireAt: string = this.calculateExpire(body.expireDay);
 
     const CREATE_SQL = `
         INSERT INTO urls (original_url, short_url, description, author_id, expire_at)
@@ -86,6 +92,33 @@ export default class URLService {
       if (findQuery.rows.length === 0) return;
 
       await this.server.pg.query(INCREMENT_SQL);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async delete(body: any, userId: string): Promise<any> {
+    const FIND_SQL = `
+        SELECT id FROM urls 
+        WHERE id = '${body.id}' AND author_id = '${userId}';
+    `;
+
+    const DELETE_SQL = `
+        DELETE FROM urls
+        WHERE id = '${body.id}'
+        RETURNING id;
+    `;
+
+    try {
+      const findQuery = await this.server.pg.query(FIND_SQL);
+
+      if (findQuery.rows.length === 0) return;
+
+      const deleteQuery = await this.server.pg.query(DELETE_SQL);
+
+      if (deleteQuery.rows.length === 0) return;
+
+      return { status: 200 };
     } catch (error) {
       console.log(error);
     }

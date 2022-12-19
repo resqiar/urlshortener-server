@@ -14,10 +14,19 @@ server.register(cors, {
   origin: [process.env.CLIENT_ORIGIN ?? ""],
 });
 
+/**
+ * Route that used only for testing purpose only.
+ * Typically used for periodical ping by external resources.
+ **/
 server.get("/ping", async () => {
   return "Please stop pinging me!";
 });
 
+/**
+ * Register PostgreSQL driver to the server.
+ * Registering the driver will expose "pg" method in every-
+ * server instance.
+ **/
 server.register(fastifyPostgres, {
   connectionString: process.env.DATABASE_URL,
 });
