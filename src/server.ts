@@ -41,7 +41,7 @@ server.register(UserRoutes, { prefix: "/v1/user" });
 server.register(URLRoutes, { prefix: "/v1/url" });
 
 server.listen(
-  { port: Number(process.env.PORT) || 3333 },
+  { port: Number(process.env.PORT) || 3333, host: "0.0.0.0" },
   async (err, address) => {
     if (err) {
       console.error(err);
